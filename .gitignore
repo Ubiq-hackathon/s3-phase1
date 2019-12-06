@@ -1,0 +1,13 @@
+.idea
+.svn
+build
+*.a
+*.so
+lib/
+bin/
+build/
+*gdb*
+*.o
+*.s
+core.*
+*/*/__pycache__
