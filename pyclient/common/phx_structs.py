@@ -1457,9 +1457,12 @@ class CPhxFtdcRspClientAccountField(object):
         self.Available = 0  # 可用资金, double
         self.FrozenMargin = 0  # 冻结的保证金, double
         self.FrozenCommission = 0  # 冻结的手续费, double
+        self.TotalMarketMakingCount = 0  # 做市义务总量, uint32_t
+        self.TotalMarketMakingCompleteCount = 0  # 做市义务完成总量, uint32_t
+        self.TotalOptionTradeCount = 0  # 期权总成交量, uint32_t
 
     def pack(self):
-        return struct.pack('=iddddddddddd', self.InvestorID, 
+        return struct.pack('=idddddddddddIII', self.InvestorID, 
                            self.PreBalance, 
                            self.CurrMargin, 
                            self.CurrCommission, 
@@ -1470,10 +1473,13 @@ class CPhxFtdcRspClientAccountField(object):
                            self.Balance, 
                            self.Available, 
                            self.FrozenMargin, 
-                           self.FrozenCommission)
+                           self.FrozenCommission, 
+                           self.TotalMarketMakingCount, 
+                           self.TotalMarketMakingCompleteCount, 
+                           self.TotalOptionTradeCount)
 
     def unpack(self, msg):
-        unpacks = struct.unpack('=iddddddddddd', msg)
+        unpacks = struct.unpack('=idddddddddddIII', msg)
         self.InvestorID = unpacks[0]
         self.PreBalance = unpacks[1]
         self.CurrMargin = unpacks[2]
@@ -1486,10 +1492,13 @@ class CPhxFtdcRspClientAccountField(object):
         self.Available = unpacks[9]
         self.FrozenMargin = unpacks[10]
         self.FrozenCommission = unpacks[11]
+        self.TotalMarketMakingCount = unpacks[12]
+        self.TotalMarketMakingCompleteCount = unpacks[13]
+        self.TotalOptionTradeCount = unpacks[14]
 
     @staticmethod
     def total_length():
-        return 92
+        return 104
 
     def __str__(self):
         return json.dumps(self.__dict__)
