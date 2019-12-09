@@ -11,6 +11,7 @@ from optparse import OptionParser
 from random import randint, random
 from test.OrderList import OrderList, OrderInfo, Snapshot
 import threading
+import copy
 
 
 class MyClient(CPhxFtdcTraderSpi):
@@ -102,7 +103,7 @@ class MyClient(CPhxFtdcTraderSpi):
             self.ins2index[pInstrument.InstrumentID] = self.inst_num
             self.inst_num += 1
             self.md_list.append(deque(maxlen=10))
-            self.instruments.append(pInstrument)
+            self.instruments.append(copy.copy(pInstrument))
 
         if bIsLast:
             self.market_data_updated = [False] * self.inst_num
