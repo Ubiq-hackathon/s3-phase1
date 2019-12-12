@@ -36,7 +36,7 @@ class MyClient(CPhxFtdcTraderSpi):
         self.instruments = []
         self.md_list = []  # array of md deque
         self.inst_num = 0
-        self.market_data_updated = None
+        self.market_data_updated = []
         self._background = None
         self.m_pUserApi = CPhxFtdcTraderApi()
 
@@ -100,13 +100,12 @@ class MyClient(CPhxFtdcTraderSpi):
         # print('OnRspQryInstrument, data=%s, ErrorID=%d, bIsLast=%d' % (json.dumps(pInstrument.__dict__), ErrorID, bIsLast))
         if pInstrument.InstrumentID not in self.ins2om:
             self.ins2om[pInstrument.InstrumentID] = OrderManager(pInstrument.InstrumentID)
-            self.ins2index[pInstrument.InstrumentID] = self.inst_num
-            self.inst_num += 1
             self.md_list.append(deque(maxlen=10))
             self.instruments.append(copy.copy(pInstrument))
+            self.ins2index[pInstrument.InstrumentID] = self.inst_num
+            self.inst_num += 1
 
         if bIsLast:
-            self.market_data_updated = [False] * self.inst_num
             self.query_status = True
             print("total %d instruments" % self.inst_num)
 
