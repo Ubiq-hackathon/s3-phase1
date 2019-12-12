@@ -102,6 +102,7 @@ class MyClient(CPhxFtdcTraderSpi):
             self.ins2om[pInstrument.InstrumentID] = OrderManager(pInstrument.InstrumentID)
             self.md_list.append(deque(maxlen=10))
             self.instruments.append(copy.copy(pInstrument))
+            self.market_data_updated.append(False)
             self.ins2index[pInstrument.InstrumentID] = self.inst_num
             self.inst_num += 1
 
