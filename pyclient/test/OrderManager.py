@@ -218,12 +218,11 @@ class OrderManager(object):
         if orderInfo.Direction == PHX_FTDC_D_Buy:
             if orderInfo.OrderPriceType == PHX_FTDC_OPT_LimitPrice:
                 self.bid_list.insert(orderInfo)
-            self.snapshot = self.longSnapshot
         else:
             if orderInfo.OrderPriceType == PHX_FTDC_OPT_LimitPrice:
                 self.ask_list.insert(orderInfo)
-            self.snapshot = self.shortSnapshot
 
+        self.set_snapshot(orderInfo.Direction, orderInfo.OffsetFlag)
         self.snapshot.TotalOrderTimes += 1
         self.snapshot.TotalOrderVolume += orderInfo.VolumeTotalOriginal
         if orderInfo.OffsetFlag == PHX_FTDC_OF_Open:
