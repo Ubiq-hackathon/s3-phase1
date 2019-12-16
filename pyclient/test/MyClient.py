@@ -12,7 +12,7 @@ from random import randint, random
 from test.OrderList import OrderList, OrderInfo, Snapshot
 import threading
 import copy
-
+import signal
 
 class MyClient(CPhxFtdcTraderSpi):
     def __init__(self):
@@ -39,6 +39,7 @@ class MyClient(CPhxFtdcTraderSpi):
         self.market_data_updated = []
         self._background = None
         self.m_pUserApi = CPhxFtdcTraderApi()
+        self._is_background_started = False
 
     def reset(self):
         """Reset function after each round"""
@@ -216,6 +217,7 @@ class MyClient(CPhxFtdcTraderSpi):
             print("ReqQryTrade failed")
             return False
 
+        self._is_background_started = True
         self._background = threading.Thread(target=self.background_thread)
         self._background.start()
         if not self.timeout_wait(10):
@@ -227,13 +229,20 @@ class MyClient(CPhxFtdcTraderSpi):
         last_time = time.time()
         field = CPhxFtdcQryClientAccountField()
         while True:
+            if not self._is_background_started:
+                break
             t = time.time()
             if t - last_time > 5 and self.m_pUserApi.all_connected:
                 last_time = t
                 ret = self.m_pUserApi.ReqQryTradingAccount(field, self.next_request_id())
                 if not ret:
                     print("ReqQryTradingAccount failed")
-            time.sleep(1)
+            time.sleep(0.5)
+
+    def stop_all_threads(self):
+        self.m_pUserApi.stop()
+        self._is_background_started = False
+        time.sleep(0.6)
 
     def random_direction(self):
         if randint(0, 1) == 0:
@@ -328,6 +337,13 @@ if __name__ == '__main__':
     client.m_UserID = user_id
     client.m_Passwd = password
 
+    def _KeyboardInterruptHandler(signal, frame):
+        print("KeyboardInterrupt (ID: {}) has been caught. Cleaning up...".format(signal))
+        client.stop_all_threads()
+        exit(0)
+
+    signal.signal(signal.SIGINT, _KeyboardInterruptHandler)
+
     if client.Init():
         print("init success")
         resetted = True
@@ -357,6 +373,7 @@ if __name__ == '__main__':
                 break
     else:
         print("init failed")
+
 
 
 

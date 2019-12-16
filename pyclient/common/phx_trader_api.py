@@ -176,6 +176,9 @@ class CPhxFtdcTraderApi(object):
 
     def select_thread(self):
         while True:
+            if not self._is_started:
+                break
+
             if len(self.good_links) < TOTAL_LINK_COUNT:
                 self.try_reconnect()
 
@@ -185,7 +188,9 @@ class CPhxFtdcTraderApi(object):
                 for sock in rl:
                     self.on_data_in(sock)
             else:
-                time.sleep(1)
+                time.sleep(0.5)
+
+        self.disconnect_all()
 
     def connect_link(self, link, now):
         if not link.connected and now - link.last_reconnect_time > 5:
@@ -232,8 +237,12 @@ class CPhxFtdcTraderApi(object):
 
     def stop(self):
         if not self._is_started:
-            raise NotImplementedError
+            print('already stop')
+            return
+
+        print('going to stop api')
         self._is_started = False
+
 
 
 

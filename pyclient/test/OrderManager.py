@@ -16,6 +16,7 @@ class OrderManager(object):
         self.OrderRef2OrderInfo = {}
         self.snapshot = self.longSnapshot  # point to longSnapshot/shortSnapshot based on direction/offset
         self.order_list = self.bid_list  # point to bid_list/ask_list based on direction
+        self.trade_id_set = {}
 
     def place_limit_order(self, orderRef, direction, offset, price, volume):
         orderInfo = OrderInfo(orderRef=orderRef, priceType=PHX_FTDC_OPT_LimitPrice, direction=direction,
@@ -99,6 +100,11 @@ class OrderManager(object):
         # print('OnRtnOrder, data=%s' % json.dumps(order.__dict__))
 
     def on_rtn_trade(self, trade: CPhxFtdcTradeField):
+        if trade.TradeID in self.trade_id_set:
+            print('dupe trade')
+            return
+        self.trade_id_set[trade.TradeID] = 1
+
         if trade.OrderLocalID not in self.OrderRef2OrderInfo:
             return
 
@@ -197,6 +203,7 @@ class OrderManager(object):
         self.longOpenPosition = 0
         self.shortOpenPosition = 0
         self.OrderRef2OrderInfo = {}
+        self.trade_id_set = {}
 
     def _get_orders_by(self, order_status):
         bids = self.bid_list.get_order_by_status(order_status)
@@ -261,4 +268,5 @@ class OrderManager(object):
             self.place_market_order(order.OrderLocalID, order.Direction, offset, order.VolumeTotalOriginal)
         else:
             self.place_limit_order(order.OrderLocalID, order.Direction, offset, order.LimitPrice, order.VolumeTotalOriginal)
+
 
