@@ -243,6 +243,3 @@ class CPhxFtdcTraderApi(object):
         print('going to stop api')
         self._is_started = False
 
-
-
-

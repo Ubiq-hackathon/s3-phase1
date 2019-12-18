@@ -148,7 +148,7 @@ class PhxLink(object):
         req.Chain = PHX_FTDC_CHAIN_SINGLE
         req.ContentLength = msg.total_length() + req.total_length() - CPhxFtdcHeader.total_length()
         if (not self.socket_send(req.pack())) or (not self.socket_send(msg.pack())):
-            print("link %d send error, trigger all connection shutdown")
+            print("link %d send error, trigger all connection shutdown" % self.linkType)
             self.pApi.disconnect_all()
             return False
         return True
@@ -171,7 +171,7 @@ class PhxLink(object):
                 return recv_len
             else:
                 return 0
-        except (ConnectionError, ConnectionResetError) as e:
+        except (ConnectionError, ConnectionResetError, IOError) as e:
             print("on_recv ret -1", e)
             return -1
         except Exception as e:
@@ -190,4 +190,5 @@ class PhxLink(object):
             self.connected = False
             self.socket_ = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             print("link %d shutdown" % self.linkType)
+
 

@@ -67,6 +67,24 @@ class OrderManager(object):
         if order.OrderLocalID not in self.OrderRef2OrderInfo:
             return
         orderInfo = self.OrderRef2OrderInfo[order.OrderLocalID]
+        '''
+        0. Already in final status, do nothing
+        1. If new status is a final status, must do something
+        2. If new status is not a final status:
+            2.1 If new status is older than the current status, do nothing
+                (Unknown='6' NoTradeQueueing='3' PartTradedQueueing='1')
+            2.2 If status remains unchanged and traded volume does not increase, do nothing
+        '''
+        if OrderManager.is_final_status(orderInfo.OrderStatus):
+            print("Already in " + orderInfo.OrderStatus + " status")
+            return
+        if not OrderManager.is_final_status(order.OrderStatus):
+            if order.OrderStatus > orderInfo.OrderStatus:
+                print("Old status " + orderInfo.OrderStatus + " New status " + order.OrderStatus)
+                return
+            if order.OrderStatus == orderInfo.OrderStatus and order.VolumeTraded <= orderInfo.VolumeTraded:
+                print("Status " + order.OrderStatus + " Old volume %d New volume %d" %(orderInfo.VolumeTraded, order.VolumeTraded))
+                return
 
         if orderInfo.OrderSysID is None:
             orderInfo.OrderSysID = order.OrderSysID
